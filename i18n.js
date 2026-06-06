@@ -350,6 +350,12 @@ checkPracticeAnswer = function (chosenAnswer, correctAnswer, explanation) {
   translateActionButtons();
 };
 
+var originalSelectExamAnswer = selectExamAnswer;
+selectExamAnswer = function (chosenAnswer) {
+  originalSelectExamAnswer(chosenAnswer);
+  translateActionButtons();
+};
+
 var originalShowResults = showResults;
 showResults = function (timeExpired) {
   originalShowResults(timeExpired);
