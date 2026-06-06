@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="progress.css">
 </head>
 <body>
   <main class="container">
@@ -21,6 +22,14 @@
 
     <p class="format-note">Practice set: 50 questions · pass target 44/50 · study time target 30 minutes</p>
     <p class="disclaimer">Study tool only. Traffic rules can change and local signs/markings always prevail. Verify final details with official CBR/RDW/government material before your real exam.</p>
+
+    <section class="progress-panel" id="progressPanel" aria-label="Saved progress">
+      <div>
+        <div class="mode-kicker">Your progress</div>
+        <div id="progressSummary">No saved attempts yet.</div>
+      </div>
+      <button class="btn small" onclick="resetProgress()">Reset progress</button>
+    </section>
 
     <section class="mode-screen" id="modeScreen" aria-label="Choose training mode">
       <div class="mode-card">
@@ -39,6 +48,15 @@
           <p>50 questions, 30-minute timer, no instant feedback and final score at the end.</p>
         </div>
         <button class="btn primary" onclick="startExamMode()">Start exam mode</button>
+      </div>
+
+      <div class="mode-card review-card" id="reviewCard">
+        <div>
+          <div class="mode-kicker">Target weak points</div>
+          <h1>Review Mistakes</h1>
+          <p>Repeat questions you previously missed. Correct answers remove them from the mistake queue.</p>
+        </div>
+        <button class="btn primary" id="reviewButton" onclick="startReviewMistakes()">Review mistakes</button>
       </div>
     </section>
 
@@ -84,5 +102,6 @@
 
   <script src="questions.js"></script>
   <script src="app.js"></script>
+  <script src="progress.js"></script>
 </body>
 </html>
