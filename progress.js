@@ -137,6 +137,41 @@ function renderProgressPanel() {
   }
 }
 
+function resetActiveSessionState() {
+  currentCategory = 'All';
+  filteredQuestions = [];
+  shuffledQuestions = [];
+  userAnswers = [];
+  currentQuestionIndex = 0;
+  score = 0;
+  answeredTotal = 0;
+  hasAnsweredCurrentQuestion = false;
+
+  clearTimer();
+  updateStats();
+
+  var progressFill = document.getElementById('pf');
+  if (progressFill) progressFill.style.width = '0%';
+
+  var options = document.getElementById('op');
+  if (options) options.innerHTML = '';
+
+  var questionText = document.getElementById('qt');
+  if (questionText) questionText.textContent = '';
+
+  var questionMeta = document.getElementById('qm');
+  if (questionMeta) questionMeta.innerHTML = '';
+
+  var explanation = document.getElementById('ex');
+  if (explanation) {
+    explanation.className = 'expl';
+    explanation.innerHTML = '';
+  }
+
+  var actions = document.getElementById('ac');
+  if (actions) actions.innerHTML = '';
+}
+
 showModeScreen = function () {
   baseShowModeScreen();
   renderProgressPanel();
@@ -217,11 +252,13 @@ restartCurrentMode = function () {
 };
 
 function resetProgress() {
-  var confirmed = window.confirm('Reset all saved progress and mistakes?');
+  var confirmed = window.confirm('Reset all saved progress, mistakes and the current session?');
   if (!confirmed) return;
 
   localStorage.removeItem(STORAGE_KEY);
+  resetActiveSessionState();
   renderProgressPanel();
+  showModeScreen();
 }
 
 renderProgressPanel();
