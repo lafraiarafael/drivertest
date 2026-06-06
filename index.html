@@ -22,17 +22,43 @@
     <p class="format-note">Practice set: 50 questions · pass target 44/50 · study time target 30 minutes</p>
     <p class="disclaimer">Study tool only. Traffic rules can change and local signs/markings always prevail. Verify final details with official CBR/RDW/government material before your real exam.</p>
 
-    <section class="stats" aria-label="Practice statistics">
+    <section class="mode-screen" id="modeScreen" aria-label="Choose training mode">
+      <div class="mode-card">
+        <div>
+          <div class="mode-kicker">Fast feedback</div>
+          <h1>Practice Mode</h1>
+          <p>Train by category, answer one question at a time and read the explanation immediately.</p>
+        </div>
+        <button class="btn primary" onclick="startPracticeMode()">Start practice</button>
+      </div>
+
+      <div class="mode-card featured">
+        <div>
+          <div class="mode-kicker">Realistic simulation</div>
+          <h1>Exam Mode</h1>
+          <p>50 questions, 30-minute timer, no instant feedback and final score at the end.</p>
+        </div>
+        <button class="btn primary" onclick="startExamMode()">Start exam mode</button>
+      </div>
+    </section>
+
+    <section class="exam-bar" id="examBar" aria-label="Exam status" style="display:none">
+      <div><strong id="modeLabel">Practice Mode</strong></div>
+      <div class="timer" id="timer">30:00</div>
+      <button class="btn small" onclick="showModeScreen()">Change mode</button>
+    </section>
+
+    <section class="stats" id="stats" aria-label="Practice statistics" style="display:none">
       <div class="stat"><div class="stat-n" id="sd">0</div><div class="stat-l">Answered</div></div>
       <div class="stat"><div class="stat-n" id="sc">0</div><div class="stat-l">Correct</div></div>
       <div class="stat"><div class="stat-n" id="sw">0</div><div class="stat-l">Wrong</div></div>
       <div class="stat"><div class="stat-n" id="sp">—</div><div class="stat-l">Score</div></div>
     </section>
 
-    <div class="pbar" aria-hidden="true"><div class="pfill" id="pf"></div></div>
-    <nav class="cats" id="cbar" aria-label="Question categories"></nav>
+    <div class="pbar" id="progressBar" aria-hidden="true" style="display:none"><div class="pfill" id="pf"></div></div>
+    <nav class="cats" id="cbar" aria-label="Question categories" style="display:none"></nav>
 
-    <section id="qa" aria-label="Current question">
+    <section id="qa" aria-label="Current question" style="display:none">
       <article class="qcard">
         <div class="qmeta" id="qm"></div>
         <div class="qtxt" id="qt"></div>
@@ -49,7 +75,8 @@
       <div class="result-tip" id="rt" style="display:none"></div>
       <div class="result-tip good" id="rb" style="display:none"></div>
       <div class="result-btns">
-        <button class="btn primary" onclick="restart()">Try again</button>
+        <button class="btn primary" onclick="restartCurrentMode()">Try again</button>
+        <button class="btn" onclick="showModeScreen()">Change mode</button>
         <button class="btn" onclick="window.open('https://cbr.nl','_blank')">CBR official site ↗</button>
       </div>
     </section>
