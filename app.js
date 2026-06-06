@@ -6,6 +6,7 @@ var currentCategory = 'All';
 var filteredQuestions = [];
 var shuffledQuestions = [];
 var userAnswers = [];
+var currentRenderedOptions = [];
 var currentQuestionIndex = 0;
 var score = 0;
 var answeredTotal = 0;
@@ -42,6 +43,15 @@ function shuffleQuestions(items) {
   }
 
   return copy;
+}
+
+function buildShuffledOptions(question) {
+  return shuffleQuestions(question.o.map(function (optionText, originalIndex) {
+    return {
+      text: optionText,
+      originalIndex: originalIndex
+    };
+  }));
 }
 
 function getRotationStore() {
@@ -169,6 +179,7 @@ function init() {
   answeredTotal = 0;
   hasAnsweredCurrentQuestion = false;
   userAnswers = [];
+  currentRenderedOptions = [];
 
   hideElement('rs');
   showElement('qa');
@@ -208,17 +219,20 @@ function renderQuestion() {
   var options = document.getElementById('op');
   options.innerHTML = '';
 
+  currentRenderedOptions = buildShuffledOptions(question);
   var letters = ['A', 'B', 'C', 'D'];
-  for (var index = 0; index < question.o.length; index++) {
-    (function (optionIndex) {
+
+  for (var index = 0; index < currentRenderedOptions.length; index++) {
+    (function (displayIndex) {
+      var option = currentRenderedOptions[displayIndex];
       var button = document.createElement('button');
       button.className = 'opt';
-      button.innerHTML = '<span class="opt-letter">' + letters[optionIndex] + '</span><span>' + question.o[optionIndex] + '</span>';
+      button.innerHTML = '<span class="opt-letter">' + letters[displayIndex] + '</span><span>' + option.text + '</span>';
       button.onclick = function () {
         if (currentMode === 'exam') {
-          selectExamAnswer(optionIndex);
+          selectExamAnswer(option.originalIndex);
         } else {
-          checkPracticeAnswer(optionIndex, question.a, question.e);
+          checkPracticeAnswer(option.originalIndex, question.a, question.e);
         }
       };
       options.appendChild(button);
@@ -253,14 +267,15 @@ function checkPracticeAnswer(chosenAnswer, correctAnswer, explanation) {
 
   var optionButtons = document.getElementById('op').querySelectorAll('.opt');
 
-  optionButtons.forEach(function (button, index) {
+  optionButtons.forEach(function (button, displayIndex) {
+    var originalIndex = currentRenderedOptions[displayIndex].originalIndex;
     button.disabled = true;
 
-    if (index === correctAnswer && index === chosenAnswer) {
+    if (originalIndex === correctAnswer && originalIndex === chosenAnswer) {
       button.className = 'opt correct';
-    } else if (index === chosenAnswer) {
+    } else if (originalIndex === chosenAnswer) {
       button.className = 'opt wrong';
-    } else if (index === correctAnswer) {
+    } else if (originalIndex === correctAnswer) {
       button.className = 'opt reveal';
     }
   });
@@ -293,9 +308,10 @@ function selectExamAnswer(chosenAnswer) {
   updateStats();
 
   var optionButtons = document.getElementById('op').querySelectorAll('.opt');
-  optionButtons.forEach(function (button, index) {
+  optionButtons.forEach(function (button, displayIndex) {
+    var originalIndex = currentRenderedOptions[displayIndex].originalIndex;
     button.disabled = true;
-    if (index === chosenAnswer) {
+    if (originalIndex === chosenAnswer) {
       button.className = 'opt selected';
     }
   });
