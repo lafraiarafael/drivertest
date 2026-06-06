@@ -9,7 +9,8 @@ Live at: https://drivertest.vercel.app
 - ✅ Phase 1: Content correction pass
 - ✅ Phase 2: Static app refactor into separate files
 - ✅ Phase 3: Practice Mode and Exam Mode
-- ▶️ Next: progress tracking and review of wrong answers
+- ✅ Phase 4: Local progress tracking and Review Mistakes
+- ▶️ Next: accessibility, keyboard controls and SEO
 
 ## Current modes
 
@@ -19,6 +20,7 @@ Live at: https://drivertest.vercel.app
 - Immediate feedback after each answer
 - Explanation shown after each answer
 - Score visible during practice
+- Wrong answers are saved for later review
 
 ### Exam Mode
 
@@ -28,6 +30,25 @@ Live at: https://drivertest.vercel.app
 - Score hidden during the exam
 - Final pass/fail result shown at the end
 - Pass target: 44/50
+- Exam attempts and best score are saved locally
+
+### Review Mistakes
+
+- Repeats previously missed questions
+- Correct answers remove questions from the mistake queue
+- Weak categories are shown in the progress panel
+
+## Local progress tracking
+
+Progress is stored in the browser with `localStorage`:
+
+- Total attempts
+- Best exam score
+- Overall accuracy
+- Saved mistakes
+- Weak categories
+
+The user can reset all saved progress from the progress panel.
 
 ## Topics covered
 
@@ -68,18 +89,21 @@ Static single-page app deployed on Vercel.
 Files:
 
 - `index.html` — HTML structure and mode screens
-- `styles.css` — styling and responsive layout
+- `styles.css` — main styling and responsive layout
+- `progress.css` — progress panel styling
 - `questions.js` — question bank
-- `app.js` — application logic, modes and timer
+- `app.js` — core application logic, modes and timer
+- `progress.js` — local progress tracking and mistake review
 - `vercel.json` — static deployment configuration
 - `README.md` — project documentation
 
 ## Next recommended phase
 
-Phase 4 should add local progress tracking:
+Phase 5 should improve accessibility, keyboard control and SEO:
 
-- Save practice attempts in `localStorage`
-- Save wrong answers
-- Add a "Review mistakes" mode
-- Show weak categories
-- Add reset-progress control
+- Answer using A/B/C/D keys
+- Continue with Enter
+- Improve focus states
+- Add ARIA live feedback
+- Add meta description and Open Graph tags
+- Add favicon / preview image
