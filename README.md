@@ -10,6 +10,7 @@ Live at: https://drivertest.vercel.app
 - ✅ Phase 2: Static app refactor into separate files
 - ✅ Phase 3: Practice Mode and Exam Mode
 - ✅ Phase 4: Local progress tracking and Review Mistakes
+- ✅ Phase 5: Expanded rotating question pool
 - ▶️ Next: accessibility, keyboard controls and SEO
 
 ## Current modes
@@ -21,10 +22,13 @@ Live at: https://drivertest.vercel.app
 - Explanation shown after each answer
 - Score visible during practice
 - Wrong answers are saved for later review
+- Uses the expanded question pool
 
 ### Exam Mode
 
 - 50-question full simulation
+- Questions are selected from a larger rotating pool
+- Lower-repeat selection prioritises questions used less often
 - 30-minute countdown timer
 - No instant feedback
 - Score hidden during the exam
@@ -38,6 +42,15 @@ Live at: https://drivertest.vercel.app
 - Correct answers remove questions from the mistake queue
 - Weak categories are shown in the progress panel
 
+## Question pool
+
+The app uses two question files:
+
+- `questions.js` — base 50-question set
+- `extra-questions.js` — additional original questions based on official CBR exam topics and Dutch traffic-rule study areas
+
+The app does not copy protected real CBR exam questions. New questions are original practice questions aligned with the official CBR topic structure.
+
 ## Local progress tracking
 
 Progress is stored in the browser with `localStorage`:
@@ -47,8 +60,9 @@ Progress is stored in the browser with `localStorage`:
 - Overall accuracy
 - Saved mistakes
 - Weak categories
+- Question rotation usage
 
-The user can reset all saved progress from the progress panel.
+The user can reset saved progress from the progress panel.
 
 ## Topics covered
 
@@ -91,15 +105,16 @@ Files:
 - `index.html` — HTML structure and mode screens
 - `styles.css` — main styling and responsive layout
 - `progress.css` — progress panel styling
-- `questions.js` — question bank
-- `app.js` — core application logic, modes and timer
+- `questions.js` — base question bank
+- `extra-questions.js` — expanded question bank
+- `app.js` — core application logic, modes, timer and rotation
 - `progress.js` — local progress tracking and mistake review
 - `vercel.json` — static deployment configuration
 - `README.md` — project documentation
 
 ## Next recommended phase
 
-Phase 5 should improve accessibility, keyboard control and SEO:
+Phase 6 should improve accessibility, keyboard control and SEO:
 
 - Answer using A/B/C/D keys
 - Continue with Enter
