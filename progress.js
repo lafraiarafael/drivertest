@@ -1,10 +1,19 @@
 var STORAGE_KEY = 'cbr-trainer-progress-v1';
+var ROTATION_STORAGE_KEY = 'cbr-question-rotation-v1';
 var baseShowModeScreen = showModeScreen;
 var baseCheckPracticeAnswer = checkPracticeAnswer;
 var baseShowResults = showResults;
 var baseStartPracticeMode = startPracticeMode;
 var baseStartExamMode = startExamMode;
 var baseRestartCurrentMode = restartCurrentMode;
+
+function tr(key, fallback) {
+  return typeof t === 'function' ? t(key) : fallback;
+}
+
+function trCategory(category) {
+  return typeof tc === 'function' ? tc(category) : category;
+}
 
 function getProgress() {
   try {
@@ -111,17 +120,17 @@ function renderProgressPanel() {
   if (!summary) return;
 
   if (progress.totalAnswered === 0 && progress.attempts === 0) {
-    summary.innerHTML = 'No saved attempts yet. Start Practice Mode or Exam Mode to build your progress history.';
+    summary.innerHTML = tr('progressEmpty', 'No saved attempts yet. Start Practice Mode or Exam Mode to build your progress history.');
   } else {
     summary.innerHTML =
-      'Attempts: <strong>' + progress.attempts + '</strong> · ' +
-      'Best exam score: <strong>' + progress.bestScore + '/50</strong> · ' +
-      'Overall accuracy: <strong>' + accuracy + '%</strong> · ' +
-      'Mistakes to review: <strong>' + mistakesCount + '</strong>';
+      tr('attempts', 'Attempts') + ': <strong>' + progress.attempts + '</strong> · ' +
+      tr('bestExamScore', 'Best exam score') + ': <strong>' + progress.bestScore + '/50</strong> · ' +
+      tr('overallAccuracy', 'Overall accuracy') + ': <strong>' + accuracy + '%</strong> · ' +
+      tr('mistakesToReview', 'Mistakes to review') + ': <strong>' + mistakesCount + '</strong>';
 
     if (weakCategories.length > 0) {
       summary.innerHTML += '<div class="weak-cats">' + weakCategories.map(function (item) {
-        return '<span class="weak-cat">' + item.category + ' · ' + Math.round(item.accuracy * 100) + '%</span>';
+        return '<span class="weak-cat">' + trCategory(item.category) + ' · ' + Math.round(item.accuracy * 100) + '%</span>';
       }).join('') + '</div>';
     }
   }
@@ -129,10 +138,13 @@ function renderProgressPanel() {
   if (reviewCard && reviewButton) {
     if (mistakesCount === 0) {
       reviewCard.className = 'mode-card review-card disabled';
-      reviewButton.textContent = 'No mistakes yet';
+      reviewButton.textContent = tr('noMistakes', 'No mistakes yet');
     } else {
       reviewCard.className = 'mode-card review-card';
-      reviewButton.textContent = 'Review ' + mistakesCount + ' mistake' + (mistakesCount === 1 ? '' : 's');
+      var template = tr('reviewCount', 'Review {count} mistake{plural}');
+      reviewButton.textContent = template
+        .replace('{count}', mistakesCount)
+        .replace('{plural}', mistakesCount === 1 ? '' : 's');
     }
   }
 }
@@ -227,8 +239,8 @@ function startReviewMistakes() {
   userAnswers = [];
 
   clearTimer();
-  document.getElementById('modeLabel').textContent = 'Review Mistakes';
-  document.getElementById('timer').textContent = 'No timer';
+  document.getElementById('modeLabel').textContent = tr('reviewTitle', 'Review Mistakes');
+  document.getElementById('timer').textContent = tr('noTimer', 'No timer');
   document.getElementById('timer').className = 'timer';
 
   hideElement('modeScreen');
@@ -252,10 +264,11 @@ restartCurrentMode = function () {
 };
 
 function resetProgress() {
-  var confirmed = window.confirm('Reset all saved progress, mistakes and the current session?');
+  var confirmed = window.confirm(tr('resetConfirm', 'Reset all saved progress, mistakes and the current session?'));
   if (!confirmed) return;
 
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(ROTATION_STORAGE_KEY);
   resetActiveSessionState();
   renderProgressPanel();
   showModeScreen();
