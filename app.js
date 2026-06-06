@@ -1,4 +1,7 @@
-var QUESTIONS = window.QUESTIONS || [];
+var BASE_QUESTIONS = window.QUESTIONS || [];
+var EXTRA_QUESTIONS = window.EXTRA_QUESTIONS || [];
+var QUESTIONS = BASE_QUESTIONS.concat(EXTRA_QUESTIONS);
+var EXAM_QUESTION_COUNT = 50;
 var currentCategory = 'All';
 var filteredQuestions = [];
 var shuffledQuestions = [];
@@ -39,6 +42,41 @@ function shuffleQuestions(items) {
   }
 
   return copy;
+}
+
+function getRotationStore() {
+  try {
+    return JSON.parse(localStorage.getItem('cbr-question-rotation-v1')) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveRotationStore(store) {
+  localStorage.setItem('cbr-question-rotation-v1', JSON.stringify(store));
+}
+
+function getAppQuestionId(question) {
+  return question.c + '|' + question.q;
+}
+
+function selectRotatingQuestions(pool, count) {
+  var rotation = getRotationStore();
+  var candidates = shuffleQuestions(pool).sort(function (a, b) {
+    var aUsage = rotation[getAppQuestionId(a)] || 0;
+    var bUsage = rotation[getAppQuestionId(b)] || 0;
+    return aUsage - bUsage;
+  });
+
+  var selected = candidates.slice(0, Math.min(count, candidates.length));
+
+  selected.forEach(function (question) {
+    var id = getAppQuestionId(question);
+    rotation[id] = (rotation[id] || 0) + 1;
+  });
+
+  saveRotationStore(rotation);
+  return shuffleQuestions(selected);
 }
 
 function showElement(id, displayValue) {
@@ -113,13 +151,19 @@ function buildCategoryButtons() {
 function init() {
   clearTimer(false);
 
-  filteredQuestions = currentCategory === 'All'
-    ? QUESTIONS.slice()
-    : QUESTIONS.filter(function (question) {
-      return question.c === currentCategory;
-    });
+  if (currentMode === 'exam') {
+    filteredQuestions = selectRotatingQuestions(QUESTIONS, EXAM_QUESTION_COUNT);
+  } else {
+    filteredQuestions = currentCategory === 'All'
+      ? QUESTIONS.slice()
+      : QUESTIONS.filter(function (question) {
+        return question.c === currentCategory;
+      });
+  }
 
-  shuffledQuestions = shuffleQuestions(filteredQuestions);
+  shuffledQuestions = currentMode === 'exam'
+    ? filteredQuestions.slice()
+    : shuffleQuestions(filteredQuestions);
   currentQuestionIndex = 0;
   score = 0;
   answeredTotal = 0;
@@ -318,7 +362,7 @@ function showResults(timeExpired) {
 
   if (currentMode === 'exam') {
     document.getElementById('rl').textContent = passed ? 'You passed the exam simulation!' : 'Exam simulation failed — keep practising.';
-    document.getElementById('rp').textContent = (timeExpired ? 'Time expired. ' : '') + 'Exam target: 44/50. Answered ' + answeredTotal + '/50.';
+    document.getElementById('rp').textContent = (timeExpired ? 'Time expired. ' : '') + 'Exam target: 44/50. Answered ' + answeredTotal + '/' + shuffledQuestions.length + '.';
   } else {
     document.getElementById('rl').textContent = passed ? 'You passed the practice target!' : 'Not there yet — keep practising.';
     document.getElementById('rp').textContent = isFullPractice
