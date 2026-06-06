@@ -1,4 +1,6 @@
 var LANGUAGE_KEY = 'cbr-trainer-language-v1';
+var PROGRESS_KEY = 'cbr-trainer-progress-v1';
+var ROTATION_KEY = 'cbr-question-rotation-v1';
 var currentLanguage = localStorage.getItem(LANGUAGE_KEY) || null;
 
 var I18N = {
@@ -42,8 +44,9 @@ var I18N = {
     skipForNow: 'Skip for now →',
     progressEmpty: 'No saved attempts yet. Start Practice Mode or Exam Mode to build your progress history.',
     resetConfirm: 'Reset all saved progress, mistakes and the current session?',
+    languageChangeConfirm: 'Changing language will restart the application and erase the current session, saved progress, mistakes and question rotation. Continue?',
     categories: {
-      'All': 'All','Priority': 'Priority','Speed limits': 'Speed limits','Traffic signs': 'Traffic signs','Alcohol & drugs': 'Alcohol & drugs','Overtaking': 'Overtaking','Motorway': 'Motorway','Lights': 'Lights','Vehicle & docs': 'Vehicle & docs','Parking': 'Parking','Cyclists & pedestrians': 'Cyclists & pedestrians','Insight': 'Insight','Emergency': 'Emergency','Environment': 'Environment','Mistakes': 'Mistakes'
+      'All': 'All', 'Priority': 'Priority', 'Speed limits': 'Speed limits', 'Traffic signs': 'Traffic signs', 'Alcohol & drugs': 'Alcohol & drugs', 'Overtaking': 'Overtaking', 'Motorway': 'Motorway', 'Lights': 'Lights', 'Vehicle & docs': 'Vehicle & docs', 'Parking': 'Parking', 'Cyclists & pedestrians': 'Cyclists & pedestrians', 'Insight': 'Insight', 'Emergency': 'Emergency', 'Environment': 'Environment', 'Mistakes': 'Mistakes'
     }
   },
   nl: {
@@ -86,8 +89,9 @@ var I18N = {
     skipForNow: 'Nu overslaan →',
     progressEmpty: 'Nog geen opgeslagen pogingen. Start Oefenmodus of Examenmodus om je voortgang op te bouwen.',
     resetConfirm: 'Alle opgeslagen voortgang, fouten en de huidige sessie wissen?',
+    languageChangeConfirm: 'Als je de taal wijzigt, wordt de applicatie opnieuw gestart en worden de huidige sessie, opgeslagen voortgang, fouten en vraagrotatie gewist. Doorgaan?',
     categories: {
-      'All': 'Alles','Priority': 'Voorrang','Speed limits': 'Snelheidslimieten','Traffic signs': 'Verkeersborden','Alcohol & drugs': 'Alcohol & drugs','Overtaking': 'Inhalen','Motorway': 'Autosnelweg','Lights': 'Verlichting','Vehicle & docs': 'Voertuig & documenten','Parking': 'Parkeren','Cyclists & pedestrians': 'Fietsers & voetgangers','Insight': 'Inzicht','Emergency': 'Noodgevallen','Environment': 'Milieu','Mistakes': 'Fouten'
+      'All': 'Alles', 'Priority': 'Voorrang', 'Speed limits': 'Snelheidslimieten', 'Traffic signs': 'Verkeersborden', 'Alcohol & drugs': 'Alcohol & drugs', 'Overtaking': 'Inhalen', 'Motorway': 'Autosnelweg', 'Lights': 'Verlichting', 'Vehicle & docs': 'Voertuig & documenten', 'Parking': 'Parkeren', 'Cyclists & pedestrians': 'Fietsers & voetgangers', 'Insight': 'Inzicht', 'Emergency': 'Noodgevallen', 'Environment': 'Milieu', 'Mistakes': 'Fouten'
     }
   }
 };
@@ -108,6 +112,43 @@ function setQuestionPoolByLanguage() {
     QUESTIONS = (window.QUESTIONS_NL || []).concat(window.EXTRA_QUESTIONS_NL || []);
   } else {
     QUESTIONS = (window.QUESTIONS || []).concat(window.EXTRA_QUESTIONS || []);
+  }
+}
+
+function hasStoredProgress() {
+  try {
+    var progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+    var mistakes = progress.mistakes ? Object.keys(progress.mistakes).length : 0;
+    return Boolean((progress.attempts || 0) > 0 || (progress.totalAnswered || 0) > 0 || mistakes > 0);
+  } catch (error) {
+    return false;
+  }
+}
+
+function hasActiveSession() {
+  return Boolean(
+    (typeof answeredTotal !== 'undefined' && answeredTotal > 0) ||
+    (typeof currentQuestionIndex !== 'undefined' && currentQuestionIndex > 0) ||
+    (typeof shuffledQuestions !== 'undefined' && shuffledQuestions && shuffledQuestions.length > 0)
+  );
+}
+
+function clearLanguageDependentState() {
+  localStorage.removeItem(PROGRESS_KEY);
+  localStorage.removeItem(ROTATION_KEY);
+
+  if (typeof resetActiveSessionState === 'function') {
+    resetActiveSessionState();
+  } else {
+    currentCategory = 'All';
+    filteredQuestions = [];
+    shuffledQuestions = [];
+    userAnswers = [];
+    currentQuestionIndex = 0;
+    score = 0;
+    answeredTotal = 0;
+    hasAnsweredCurrentQuestion = false;
+    if (typeof clearTimer === 'function') clearTimer();
   }
 }
 
@@ -136,10 +177,23 @@ function applyLanguage() {
 }
 
 function chooseLanguage(lang) {
+  var isChangingLanguage = currentLanguage && currentLanguage !== lang;
+  var needsReset = isChangingLanguage && (hasActiveSession() || hasStoredProgress());
+
+  if (needsReset) {
+    var confirmed = window.confirm(t('languageChangeConfirm'));
+    if (!confirmed) return;
+    clearLanguageDependentState();
+  }
+
   currentLanguage = lang;
   localStorage.setItem(LANGUAGE_KEY, lang);
   applyLanguage();
   showModeScreen();
+
+  if (needsReset) {
+    window.location.reload();
+  }
 }
 
 function openLanguageSelector() {
