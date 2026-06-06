@@ -4,12 +4,30 @@ Practice app for the Dutch driving theory exam (CBR) — English version.
 
 Live at: https://drivertest.vercel.app
 
-## Current practice format
+## Current status
 
-- 50 practice questions
-- Practice pass target: 44/50
-- Study time target: 30 minutes
-- Question types: Knowledge and Insight
+- ✅ Phase 1: Content correction pass
+- ✅ Phase 2: Static app refactor into separate files
+- ✅ Phase 3: Practice Mode and Exam Mode
+- ▶️ Next: progress tracking and review of wrong answers
+
+## Current modes
+
+### Practice Mode
+
+- Category training
+- Immediate feedback after each answer
+- Explanation shown after each answer
+- Score visible during practice
+
+### Exam Mode
+
+- 50-question full simulation
+- 30-minute countdown timer
+- No instant feedback
+- Score hidden during the exam
+- Final pass/fail result shown at the end
+- Pass target: 44/50
 
 ## Topics covered
 
@@ -49,17 +67,19 @@ Static single-page app deployed on Vercel.
 
 Files:
 
-- `index.html` — app, styles, question bank and logic
+- `index.html` — HTML structure and mode screens
+- `styles.css` — styling and responsive layout
+- `questions.js` — question bank
+- `app.js` — application logic, modes and timer
 - `vercel.json` — static deployment configuration
 - `README.md` — project documentation
 
 ## Next recommended phase
 
-Phase 2 should refactor the static app into separate files:
+Phase 4 should add local progress tracking:
 
-- `index.html`
-- `styles.css`
-- `app.js`
-- `questions.js`
-
-This will improve maintainability before adding Exam Mode, timer, progress tracking and review of wrong answers.
+- Save practice attempts in `localStorage`
+- Save wrong answers
+- Add a "Review mistakes" mode
+- Show weak categories
+- Add reset-progress control
