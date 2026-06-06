@@ -42,9 +42,27 @@ var I18N = {
     seeResults: 'See results',
     finishExam: 'Finish exam',
     skipForNow: 'Skip for now →',
+    correctFeedback: 'Correct.',
+    incorrectFeedback: 'Incorrect.',
+    passedPractice: 'You passed the practice target!',
+    failedPractice: 'Not there yet — keep practising.',
+    passedExam: 'You passed the exam simulation!',
+    failedExam: 'Exam simulation failed — keep practising.',
+    practiceTarget: 'Practice target: 44/50. You got {score}.',
+    categoryResult: '{percentage}% on {category} questions.',
+    examTarget: '{timeExpired}Exam target: 44/50. Answered {answered}/{total}.',
+    timeExpired: 'Time expired. ',
+    weakPracticeTip: 'Tip: use the category buttons to drill your weakest topics. Re-check official CBR material for final exam preparation.',
+    weakExamTip: 'Review weak categories in Practice Mode, then repeat Exam Mode with a timer.',
+    goodTip: 'Good progress. Keep practising and verify the latest official CBR guidance before the real exam.',
     progressEmpty: 'No saved attempts yet. Start Practice Mode or Exam Mode to build your progress history.',
+    attempts: 'Attempts',
+    bestExamScore: 'Best exam score',
+    overallAccuracy: 'Overall accuracy',
+    mistakesToReview: 'Mistakes to review',
     resetConfirm: 'Reset all saved progress, mistakes and the current session?',
     languageChangeConfirm: 'Changing language will restart the application and erase the current session, saved progress, mistakes and question rotation. Continue?',
+    reviewCount: 'Review {count} mistake{plural}',
     categories: {
       'All': 'All', 'Priority': 'Priority', 'Speed limits': 'Speed limits', 'Traffic signs': 'Traffic signs', 'Alcohol & drugs': 'Alcohol & drugs', 'Overtaking': 'Overtaking', 'Motorway': 'Motorway', 'Lights': 'Lights', 'Vehicle & docs': 'Vehicle & docs', 'Parking': 'Parking', 'Cyclists & pedestrians': 'Cyclists & pedestrians', 'Insight': 'Insight', 'Emergency': 'Emergency', 'Environment': 'Environment', 'Mistakes': 'Mistakes'
     }
@@ -87,9 +105,27 @@ var I18N = {
     seeResults: 'Bekijk resultaat',
     finishExam: 'Examen afronden',
     skipForNow: 'Nu overslaan →',
+    correctFeedback: 'Goed.',
+    incorrectFeedback: 'Fout.',
+    passedPractice: 'Je hebt het oefendoel gehaald!',
+    failedPractice: 'Nog niet genoeg — blijf oefenen.',
+    passedExam: 'Je bent geslaagd voor de examensimulatie!',
+    failedExam: 'Examensimulatie niet gehaald — blijf oefenen.',
+    practiceTarget: 'Oefendoel: 44/50. Je had {score} goed.',
+    categoryResult: '{percentage}% op vragen over {category}.',
+    examTarget: '{timeExpired}Examendoel: 44/50. Beantwoord {answered}/{total}.',
+    timeExpired: 'Tijd voorbij. ',
+    weakPracticeTip: 'Tip: gebruik de categorieknoppen om je zwakke onderwerpen te oefenen. Controleer officiële CBR-informatie voor je echte examen.',
+    weakExamTip: 'Oefen je zwakke categorieën in Oefenmodus en herhaal daarna de Examenmodus met timer.',
+    goodTip: 'Goede voortgang. Blijf oefenen en controleer de nieuwste officiële CBR-informatie vóór je echte examen.',
     progressEmpty: 'Nog geen opgeslagen pogingen. Start Oefenmodus of Examenmodus om je voortgang op te bouwen.',
+    attempts: 'Pogingen',
+    bestExamScore: 'Beste examenscore',
+    overallAccuracy: 'Totale nauwkeurigheid',
+    mistakesToReview: 'Fouten om te herhalen',
     resetConfirm: 'Alle opgeslagen voortgang, fouten en de huidige sessie wissen?',
     languageChangeConfirm: 'Als je de taal wijzigt, wordt de applicatie opnieuw gestart en worden de huidige sessie, opgeslagen voortgang, fouten en vraagrotatie gewist. Doorgaan?',
+    reviewCount: 'Herhaal {count} fout{plural}',
     categories: {
       'All': 'Alles', 'Priority': 'Voorrang', 'Speed limits': 'Snelheidslimieten', 'Traffic signs': 'Verkeersborden', 'Alcohol & drugs': 'Alcohol & drugs', 'Overtaking': 'Inhalen', 'Motorway': 'Autosnelweg', 'Lights': 'Verlichting', 'Vehicle & docs': 'Voertuig & documenten', 'Parking': 'Parkeren', 'Cyclists & pedestrians': 'Fietsers & voetgangers', 'Insight': 'Inzicht', 'Emergency': 'Noodgevallen', 'Environment': 'Milieu', 'Mistakes': 'Fouten'
     }
@@ -99,6 +135,12 @@ var I18N = {
 function t(key) {
   var lang = currentLanguage || 'en';
   return (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key;
+}
+
+function formatText(template, values) {
+  return Object.keys(values || {}).reduce(function (text, key) {
+    return text.replace(new RegExp('\\{' + key + '\\}', 'g'), values[key]);
+  }, template);
 }
 
 function tc(category) {
@@ -129,7 +171,7 @@ function hasActiveSession() {
   return Boolean(
     (typeof answeredTotal !== 'undefined' && answeredTotal > 0) ||
     (typeof currentQuestionIndex !== 'undefined' && currentQuestionIndex > 0) ||
-    (typeof shuffledQuestions !== 'undefined' && shuffledQuestions && shuffledQuestions.length > 0)
+    (typeof currentMode !== 'undefined' && currentMode !== 'practice' && currentMode !== null)
   );
 }
 
@@ -201,6 +243,58 @@ function openLanguageSelector() {
   if (overlay) overlay.className = 'language-overlay on';
 }
 
+function translateActionButtons() {
+  var actionButtons = document.querySelectorAll('#ac .btn');
+  actionButtons.forEach(function (button) {
+    if (button.textContent.indexOf('Skip for now') !== -1 || button.textContent.indexOf('Nu overslaan') !== -1) button.textContent = t('skipForNow');
+    if (button.textContent.indexOf('Finish exam') !== -1 || button.textContent.indexOf('Examen afronden') !== -1) button.textContent = t('finishExam');
+    if (button.textContent.indexOf('Next question') !== -1 || button.textContent.indexOf('Volgende vraag') !== -1) button.textContent = t('nextQuestion');
+    if (button.textContent.indexOf('See results') !== -1 || button.textContent.indexOf('Bekijk resultaat') !== -1) button.textContent = t('seeResults');
+  });
+}
+
+function translateQuestionMeta() {
+  var meta = document.getElementById('qm');
+  if (!meta) return;
+  meta.innerHTML = meta.innerHTML
+    .replace('Knowledge', t('knowledge'))
+    .replace('Insight', t('insight'))
+    .replace('Kennis', t('knowledge'))
+    .replace('Inzicht', t('insight'));
+  categories.forEach(function (category) {
+    meta.innerHTML = meta.innerHTML.replace(category, tc(category));
+  });
+}
+
+function localizeResults(timeExpired) {
+  var percentage = shuffledQuestions.length ? Math.round(score / shuffledQuestions.length * 100) : 0;
+  var isFullPractice = currentCategory === 'All';
+  var passed = isFullPractice ? score >= 44 : percentage >= 88;
+
+  if (currentMode === 'exam') {
+    document.getElementById('rl').textContent = passed ? t('passedExam') : t('failedExam');
+    document.getElementById('rp').textContent = formatText(t('examTarget'), {
+      timeExpired: timeExpired ? t('timeExpired') : '',
+      answered: answeredTotal,
+      total: shuffledQuestions.length
+    });
+  } else {
+    document.getElementById('rl').textContent = passed ? t('passedPractice') : t('failedPractice');
+    document.getElementById('rp').textContent = isFullPractice
+      ? formatText(t('practiceTarget'), { score: score })
+      : formatText(t('categoryResult'), { percentage: percentage, category: tc(currentCategory) });
+  }
+
+  var warningTip = document.getElementById('rt');
+  var goodTip = document.getElementById('rb');
+  if (!passed && warningTip) {
+    warningTip.textContent = currentMode === 'exam' ? t('weakExamTip') : t('weakPracticeTip');
+  }
+  if (passed && goodTip) {
+    goodTip.textContent = t('goodTip');
+  }
+}
+
 var originalBuildCategoryButtons = buildCategoryButtons;
 buildCategoryButtons = function () {
   originalBuildCategoryButtons();
@@ -238,23 +332,28 @@ updateStats = function () {
 var originalRenderQuestion = renderQuestion;
 renderQuestion = function () {
   originalRenderQuestion();
-  var meta = document.getElementById('qm');
-  if (meta) {
-    meta.innerHTML = meta.innerHTML
-      .replace('Knowledge', t('knowledge'))
-      .replace('Insight', t('insight'));
-    categories.forEach(function (category) {
-      meta.innerHTML = meta.innerHTML.replace(category, tc(category));
-    });
-  }
+  translateQuestionMeta();
+  translateActionButtons();
+};
 
-  var actionButtons = document.querySelectorAll('#ac .btn');
-  actionButtons.forEach(function (button) {
-    if (button.textContent.indexOf('Skip for now') !== -1) button.textContent = t('skipForNow');
-    if (button.textContent.indexOf('Finish exam') !== -1) button.textContent = t('finishExam');
-    if (button.textContent.indexOf('Next question') !== -1) button.textContent = t('nextQuestion');
-    if (button.textContent.indexOf('See results') !== -1) button.textContent = t('seeResults');
-  });
+var originalCheckPracticeAnswer = checkPracticeAnswer;
+checkPracticeAnswer = function (chosenAnswer, correctAnswer, explanation) {
+  originalCheckPracticeAnswer(chosenAnswer, correctAnswer, explanation);
+  var explanationBox = document.getElementById('ex');
+  if (explanationBox) {
+    explanationBox.innerHTML = explanationBox.innerHTML
+      .replace('Correct.', t('correctFeedback'))
+      .replace('Incorrect.', t('incorrectFeedback'))
+      .replace('Goed.', t('correctFeedback'))
+      .replace('Fout.', t('incorrectFeedback'));
+  }
+  translateActionButtons();
+};
+
+var originalShowResults = showResults;
+showResults = function (timeExpired) {
+  originalShowResults(timeExpired);
+  localizeResults(timeExpired);
 };
 
 var originalShowModeScreen = showModeScreen;
