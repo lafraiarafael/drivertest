@@ -40,41 +40,10 @@ var I18N = {
     seeResults: 'See results',
     finishExam: 'Finish exam',
     skipForNow: 'Skip for now →',
-    correct: 'Correct.',
-    incorrect: 'Incorrect.',
-    passedPractice: 'You passed the practice target!',
-    failedPractice: 'Not there yet — keep practising.',
-    passedExam: 'You passed the exam simulation!',
-    failedExam: 'Exam simulation failed — keep practising.',
-    practiceTarget: 'Practice target: 44/50. You got {score}.',
-    examTarget: '{timeExpired}Exam target: 44/50. Answered {answered}/{total}.',
-    timeExpired: 'Time expired. ',
-    weakPracticeTip: 'Tip: use the category buttons to drill your weakest topics. Re-check official CBR material for final exam preparation.',
-    weakExamTip: 'Review weak categories in Practice Mode, then repeat Exam Mode with a timer.',
-    goodTip: 'Good progress. Keep practising and verify the latest official CBR guidance before the real exam.',
     progressEmpty: 'No saved attempts yet. Start Practice Mode or Exam Mode to build your progress history.',
-    attempts: 'Attempts',
-    bestExamScore: 'Best exam score',
-    overallAccuracy: 'Overall accuracy',
-    mistakesToReview: 'Mistakes to review',
     resetConfirm: 'Reset all saved progress, mistakes and the current session?',
-    reviewCount: 'Review {count} mistake{plural}',
     categories: {
-      'All': 'All',
-      'Priority': 'Priority',
-      'Speed limits': 'Speed limits',
-      'Traffic signs': 'Traffic signs',
-      'Alcohol & drugs': 'Alcohol & drugs',
-      'Overtaking': 'Overtaking',
-      'Motorway': 'Motorway',
-      'Lights': 'Lights',
-      'Vehicle & docs': 'Vehicle & docs',
-      'Parking': 'Parking',
-      'Cyclists & pedestrians': 'Cyclists & pedestrians',
-      'Insight': 'Insight',
-      'Emergency': 'Emergency',
-      'Environment': 'Environment',
-      'Mistakes': 'Mistakes'
+      'All': 'All','Priority': 'Priority','Speed limits': 'Speed limits','Traffic signs': 'Traffic signs','Alcohol & drugs': 'Alcohol & drugs','Overtaking': 'Overtaking','Motorway': 'Motorway','Lights': 'Lights','Vehicle & docs': 'Vehicle & docs','Parking': 'Parking','Cyclists & pedestrians': 'Cyclists & pedestrians','Insight': 'Insight','Emergency': 'Emergency','Environment': 'Environment','Mistakes': 'Mistakes'
     }
   },
   nl: {
@@ -115,41 +84,10 @@ var I18N = {
     seeResults: 'Bekijk resultaat',
     finishExam: 'Examen afronden',
     skipForNow: 'Nu overslaan →',
-    correct: 'Goed.',
-    incorrect: 'Fout.',
-    passedPractice: 'Je hebt het oefendoel gehaald!',
-    failedPractice: 'Nog niet genoeg — blijf oefenen.',
-    passedExam: 'Je bent geslaagd voor de examensimulatie!',
-    failedExam: 'Examen simulatie niet gehaald — blijf oefenen.',
-    practiceTarget: 'Oefendoel: 44/50. Je had {score} goed.',
-    examTarget: '{timeExpired}Examendoel: 44/50. Beantwoord {answered}/{total}.',
-    timeExpired: 'Tijd voorbij. ',
-    weakPracticeTip: 'Tip: gebruik de categorieknoppen om je zwakke onderwerpen te oefenen. Controleer officiële CBR-informatie voor je echte examen.',
-    weakExamTip: 'Oefen je zwakke categorieën in Oefenmodus en herhaal daarna de Examenmodus met timer.',
-    goodTip: 'Goede voortgang. Blijf oefenen en controleer de nieuwste officiële CBR-informatie vóór je echte examen.',
     progressEmpty: 'Nog geen opgeslagen pogingen. Start Oefenmodus of Examenmodus om je voortgang op te bouwen.',
-    attempts: 'Pogingen',
-    bestExamScore: 'Beste examenscore',
-    overallAccuracy: 'Totale nauwkeurigheid',
-    mistakesToReview: 'Fouten om te herhalen',
     resetConfirm: 'Alle opgeslagen voortgang, fouten en de huidige sessie wissen?',
-    reviewCount: 'Herhaal {count} fout{plural}',
     categories: {
-      'All': 'Alles',
-      'Priority': 'Voorrang',
-      'Speed limits': 'Snelheidslimieten',
-      'Traffic signs': 'Verkeersborden',
-      'Alcohol & drugs': 'Alcohol & drugs',
-      'Overtaking': 'Inhalen',
-      'Motorway': 'Autosnelweg',
-      'Lights': 'Verlichting',
-      'Vehicle & docs': 'Voertuig & documenten',
-      'Parking': 'Parkeren',
-      'Cyclists & pedestrians': 'Fietsers & voetgangers',
-      'Insight': 'Inzicht',
-      'Emergency': 'Noodgevallen',
-      'Environment': 'Milieu',
-      'Mistakes': 'Fouten'
+      'All': 'Alles','Priority': 'Voorrang','Speed limits': 'Snelheidslimieten','Traffic signs': 'Verkeersborden','Alcohol & drugs': 'Alcohol & drugs','Overtaking': 'Inhalen','Motorway': 'Autosnelweg','Lights': 'Verlichting','Vehicle & docs': 'Voertuig & documenten','Parking': 'Parkeren','Cyclists & pedestrians': 'Fietsers & voetgangers','Insight': 'Inzicht','Emergency': 'Noodgevallen','Environment': 'Milieu','Mistakes': 'Fouten'
     }
   }
 };
@@ -164,9 +102,19 @@ function tc(category) {
   return (I18N[lang].categories && I18N[lang].categories[category]) || category;
 }
 
+function setQuestionPoolByLanguage() {
+  var lang = currentLanguage || 'en';
+  if (lang === 'nl' && window.QUESTIONS_NL && window.QUESTIONS_NL.length) {
+    QUESTIONS = (window.QUESTIONS_NL || []).concat(window.EXTRA_QUESTIONS_NL || []);
+  } else {
+    QUESTIONS = (window.QUESTIONS || []).concat(window.EXTRA_QUESTIONS || []);
+  }
+}
+
 function applyLanguage() {
   var lang = currentLanguage || 'en';
   document.documentElement.lang = I18N[lang].htmlLang;
+  setQuestionPoolByLanguage();
 
   var ids = [
     'appTitle','appBadge','languageSwitch','formatNote','disclaimerText','progressKicker','resetProgressButton',
@@ -191,6 +139,7 @@ function chooseLanguage(lang) {
   currentLanguage = lang;
   localStorage.setItem(LANGUAGE_KEY, lang);
   applyLanguage();
+  showModeScreen();
 }
 
 function openLanguageSelector() {
@@ -203,12 +152,17 @@ buildCategoryButtons = function () {
   originalBuildCategoryButtons();
   var buttons = document.querySelectorAll('#cbar .cbt');
   buttons.forEach(function (button) {
-    button.textContent = tc(button.textContent);
+    var original = button.textContent;
+    Object.keys(I18N.en.categories).forEach(function (key) {
+      if (I18N.en.categories[key] === original || I18N.nl.categories[key] === original) original = key;
+    });
+    button.textContent = tc(original);
   });
 };
 
 var originalStartPracticeMode = startPracticeMode;
 startPracticeMode = function () {
+  setQuestionPoolByLanguage();
   originalStartPracticeMode();
   document.getElementById('modeLabel').textContent = t('practiceTitle');
   document.getElementById('timer').textContent = t('noTimer');
@@ -216,6 +170,7 @@ startPracticeMode = function () {
 
 var originalStartExamMode = startExamMode;
 startExamMode = function () {
+  setQuestionPoolByLanguage();
   originalStartExamMode();
   document.getElementById('modeLabel').textContent = t('examTitle');
 };
