@@ -9,52 +9,68 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="progress.css">
+  <link rel="stylesheet" href="language.css">
 </head>
 <body>
-  <main class="container">
+  <section class="language-overlay" id="languageOverlay" aria-label="Choose language">
+    <div class="language-modal">
+      <div class="language-flag">🇳🇱</div>
+      <h1>Choose your language</h1>
+      <p>Select the language you want to use for the CBR theory practice tool.</p>
+      <div class="language-actions">
+        <button class="btn primary" onclick="chooseLanguage('en')">English</button>
+        <button class="btn primary" onclick="chooseLanguage('nl')">Nederlands</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="container" id="appContainer">
     <header class="header">
       <div class="logo">
         <span class="logo-flag">🇳🇱</span>
-        <span class="logo-text">CBR Exam Trainer</span>
+        <span class="logo-text" id="appTitle">CBR Exam Trainer</span>
       </div>
-      <span class="exam-badge">Dutch theory practice</span>
+      <div class="header-actions">
+        <button class="btn small ghost" id="languageSwitch" onclick="openLanguageSelector()">Language</button>
+        <span class="exam-badge" id="appBadge">Dutch theory practice</span>
+      </div>
     </header>
 
-    <p class="format-note">Practice set: 50 questions per simulation · rotating pool · pass target 44/50 · study time target 30 minutes</p>
-    <p class="disclaimer">Study tool only. Traffic rules can change and local signs/markings always prevail. Verify final details with official CBR/RDW/government material before your real exam.</p>
+    <p class="format-note" id="formatNote">Practice set: 50 questions per simulation · rotating pool · pass target 44/50 · study time target 30 minutes</p>
+    <p class="disclaimer" id="disclaimerText">Study tool only. Traffic rules can change and local signs/markings always prevail. Verify final details with official CBR/RDW/government material before your real exam.</p>
 
     <section class="progress-panel" id="progressPanel" aria-label="Saved progress">
       <div>
-        <div class="mode-kicker">Your progress</div>
+        <div class="mode-kicker" id="progressKicker">Your progress</div>
         <div id="progressSummary">No saved attempts yet.</div>
       </div>
-      <button class="btn small" onclick="resetProgress()">Reset progress</button>
+      <button class="btn small" id="resetProgressButton" onclick="resetProgress()">Reset progress</button>
     </section>
 
     <section class="mode-screen" id="modeScreen" aria-label="Choose training mode">
       <div class="mode-card">
         <div>
-          <div class="mode-kicker">Fast feedback</div>
-          <h1>Practice Mode</h1>
-          <p>Train by category, answer one question at a time and read the explanation immediately.</p>
+          <div class="mode-kicker" id="practiceKicker">Fast feedback</div>
+          <h1 id="practiceTitle">Practice Mode</h1>
+          <p id="practiceDescription">Train by category, answer one question at a time and read the explanation immediately.</p>
         </div>
-        <button class="btn primary" onclick="startPracticeMode()">Start practice</button>
+        <button class="btn primary" id="practiceButton" onclick="startPracticeMode()">Start practice</button>
       </div>
 
       <div class="mode-card featured">
         <div>
-          <div class="mode-kicker">Realistic simulation</div>
-          <h1>Exam Mode</h1>
-          <p>50 questions selected from a larger rotating pool, 30-minute timer, no instant feedback.</p>
+          <div class="mode-kicker" id="examKicker">Realistic simulation</div>
+          <h1 id="examTitle">Exam Mode</h1>
+          <p id="examDescription">50 questions selected from a larger rotating pool, 30-minute timer, no instant feedback.</p>
         </div>
-        <button class="btn primary" onclick="startExamMode()">Start exam mode</button>
+        <button class="btn primary" id="examButton" onclick="startExamMode()">Start exam mode</button>
       </div>
 
       <div class="mode-card review-card" id="reviewCard">
         <div>
-          <div class="mode-kicker">Target weak points</div>
-          <h1>Review Mistakes</h1>
-          <p>Repeat questions you previously missed. Correct answers remove them from the mistake queue.</p>
+          <div class="mode-kicker" id="reviewKicker">Target weak points</div>
+          <h1 id="reviewTitle">Review Mistakes</h1>
+          <p id="reviewDescription">Repeat questions you previously missed. Correct answers remove them from the mistake queue.</p>
         </div>
         <button class="btn primary" id="reviewButton" onclick="startReviewMistakes()">Review mistakes</button>
       </div>
@@ -63,14 +79,14 @@
     <section class="exam-bar" id="examBar" aria-label="Exam status" style="display:none">
       <div><strong id="modeLabel">Practice Mode</strong></div>
       <div class="timer" id="timer">30:00</div>
-      <button class="btn small" onclick="showModeScreen()">Change mode</button>
+      <button class="btn small" id="changeModeButton" onclick="showModeScreen()">Change mode</button>
     </section>
 
     <section class="stats" id="stats" aria-label="Practice statistics" style="display:none">
-      <div class="stat"><div class="stat-n" id="sd">0</div><div class="stat-l">Answered</div></div>
-      <div class="stat"><div class="stat-n" id="sc">0</div><div class="stat-l">Correct</div></div>
-      <div class="stat"><div class="stat-n" id="sw">0</div><div class="stat-l">Wrong</div></div>
-      <div class="stat"><div class="stat-n" id="sp">—</div><div class="stat-l">Score</div></div>
+      <div class="stat"><div class="stat-n" id="sd">0</div><div class="stat-l" id="answeredLabel">Answered</div></div>
+      <div class="stat"><div class="stat-n" id="sc">0</div><div class="stat-l" id="correctLabel">Correct</div></div>
+      <div class="stat"><div class="stat-n" id="sw">0</div><div class="stat-l" id="wrongLabel">Wrong</div></div>
+      <div class="stat"><div class="stat-n" id="sp">—</div><div class="stat-l" id="scoreLabel">Score</div></div>
     </section>
 
     <div class="pbar" id="progressBar" aria-hidden="true" style="display:none"><div class="pfill" id="pf"></div></div>
@@ -93,9 +109,9 @@
       <div class="result-tip" id="rt" style="display:none"></div>
       <div class="result-tip good" id="rb" style="display:none"></div>
       <div class="result-btns">
-        <button class="btn primary" onclick="restartCurrentMode()">Try again</button>
-        <button class="btn" onclick="showModeScreen()">Change mode</button>
-        <button class="btn" onclick="window.open('https://cbr.nl','_blank')">CBR official site ↗</button>
+        <button class="btn primary" id="tryAgainButton" onclick="restartCurrentMode()">Try again</button>
+        <button class="btn" id="resultChangeModeButton" onclick="showModeScreen()">Change mode</button>
+        <button class="btn" id="officialSiteButton" onclick="window.open('https://cbr.nl','_blank')">CBR official site ↗</button>
       </div>
     </section>
   </main>
@@ -104,5 +120,6 @@
   <script src="extra-questions.js"></script>
   <script src="app.js"></script>
   <script src="progress.js"></script>
+  <script src="i18n.js"></script>
 </body>
 </html>
