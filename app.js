@@ -57,14 +57,14 @@ function buildShuffledOptions(question) {
 
 function getRotationStore() {
   try {
-    return JSON.parse(localStorage.getItem('cbr-question-rotation-v1')) || {};
+    return JSON.parse(localStorage.getItem('cbr-question-rotation-v2')) || {};
   } catch (error) {
     return {};
   }
 }
 
 function saveRotationStore(store) {
-  localStorage.setItem('cbr-question-rotation-v1', JSON.stringify(store));
+  localStorage.setItem('cbr-question-rotation-v2', JSON.stringify(store));
 }
 
 function getAppQuestionId(question) {
