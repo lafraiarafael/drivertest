@@ -1,6 +1,7 @@
 var BASE_QUESTIONS = window.QUESTIONS || [];
 var EXTRA_QUESTIONS = window.EXTRA_QUESTIONS || [];
-var QUESTIONS = BASE_QUESTIONS.concat(EXTRA_QUESTIONS);
+var BONUS_QUESTIONS = window.BONUS_QUESTIONS || [];
+var QUESTIONS = BASE_QUESTIONS.concat(EXTRA_QUESTIONS).concat(BONUS_QUESTIONS);
 var EXAM_QUESTION_COUNT = 50;
 var currentCategory = 'All';
 var filteredQuestions = [];
